@@ -22,7 +22,7 @@
 whatr_clues <- function(game) {
   game <- whatr_html(game, "showgame")
   clues <- game %>%
-    rvest::html_nodes("table td.clue_text") %>%
+    rvest::html_nodes("table td.clue_text:nth-child(1)") %>%
     rvest::html_text() %>%
     entity_clean() %>%
     tibble::enframe(name = NULL, value = "clue") %>%
