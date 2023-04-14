@@ -24,32 +24,18 @@
 #' @importFrom dplyr add_row bind_cols
 #' @importFrom tibble enframe
 #' @export
-whatr_answers <- function(game) {
+whatr_answers <- function (game) {
   game <- whatr_html(game, "showgame")
-  final_answer <- game %>%
-    rvest::html_node(".final_round tr td div") %>%
-    rvest::html_attr("onmouseover") %>%
-    stringr::str_remove_all(fixed("\\")) %>%
-    xml2::read_html() %>%
-    rvest::html_node("body") %>%
-    rvest::html_node("em.correct_response") %>%
-    rvest::html_text() %>%
-    entity_clean()
-  answers <- game %>%
-    rvest::html_nodes("table tr td div") %>%
-    purrr::map_chr(extract_answer) %>%
-    base::unlist() %>%
-    entity_clean() %>%
-    tibble::enframe(name = NULL, value = "answer")
+  final_answer <- game %>% rvest::html_node(".correct_response") %>% rvest::html_text() %>% entity_clean()
+  answers <- game %>% rvest::html_nodes(".correct_response") %>%
+    purrr::map_chr(extract_answer) %>% base::unlist() %>%
+    entity_clean() %>% tibble::enframe(name = NULL, value = "answer")
   answers <- dplyr::bind_cols(whatr_order(game = game), answers)
   return(answers)
 }
 
 extract_answer <- function(node) {
   answer <- node %>%
-    rvest::html_attr("onmouseover") %>%
-    xml2::read_html() %>%
-    rvest::html_nodes("em.correct_response") %>%
     rvest::html_text() %>%
     entity_clean()
 }
